@@ -1,0 +1,14 @@
+#!/bin/env bash
+
+#
+# 1	Catchall for general errors
+# 2	Misuse of shell builtins (according to Bash documentation)
+# 126	Command invoked cannot execute
+# 127	Command not found
+# 128	Invalid argument to exit command
+# 128+n	Fatal error signal “n”
+# 130	Bash script terminated by Control-C
+# 255*	Exit status out of range
+
+ASD_CONST_EXIT_CODE_SUCCESS=0
+ASD_CONST_EXIT_CODE_FAIL=1

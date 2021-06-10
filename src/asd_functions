@@ -1,0 +1,15 @@
+#!/bin/env bash
+set -e
+
+# check if file exist
+fileExist() {
+	if [ $# -eq 0 ] then
+		echo $T__NO_ARGS
+		exit $ASD_CONST_EXIT_CODE_FAIL
+	fi
+
+	if [ ! -f "$1" ]; then
+		echo "[$1] $T__FILE_NOT_EXIST"
+		exit $ASD_CONST_EXIT_CODE_FAIL
+	fi
+}

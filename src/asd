@@ -1,0 +1,12 @@
+#!/bin/env bash
+set -e
+
+ASD_VER=0.1
+ASD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+ASD_CFG=$ASD_DIR/asd.confa
+
+source $ASD_DIR/asd_translates
+source $ASD_DIR/asd_const
+source $ASD_DIR/asd_functions
+
+fileExist $ASD_CFG
