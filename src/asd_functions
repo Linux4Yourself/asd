@@ -187,7 +187,7 @@ install() {
 
 	# run the command
 	> $LogPath/$pkgname
-	configure=$($(fetchScript $pkg $2) > $LogPath/$pkgname-$2)
+	command=$($(fetchScript $pkg $2) > $LogPath/$pkgname-$2)
 
-	$configure
+	$command
 }
