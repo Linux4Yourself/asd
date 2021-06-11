@@ -1,12 +1,59 @@
 #!/bin/env bash
-set -e
+set -e 
 
-ASD_VER=0.1
-ASD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-ASD_CFG=$ASD_DIR/asd.confa
+ASD_VER=0.1.1
+ASD_DIR="`dirname $0`";
+ASD_CFG=$ASD_DIR/asd.conf
 
 source $ASD_DIR/asd_translates
 source $ASD_DIR/asd_const
 source $ASD_DIR/asd_functions
+source $ASD_CFG
 
-fileExist $ASD_CFG
+init
+
+while [ "$1" != "" ]; do
+	PARAM=`echo $1 | awk -F= '{print $1}'`
+	VALUE=`echo $1 | awk -F= '{print $2}'`
+
+    case $PARAM in
+		# help
+        -h | --help)
+            usage
+            exit
+            ;;
+		# show config
+        -cfg | --config)
+            showcfg
+            exit
+            ;;
+		# clear cache
+ 		-cc | --clear-cache)
+            clearcache
+            exit
+            ;;
+		-ss | --sync)
+            fetchSource
+            exit
+            ;;
+		-v | --version)
+            msg 'asd v.'$ASD_VER
+            exit
+            ;;
+		-s | --search)
+            search $2
+            exit
+            ;;
+		-d | --download)
+            download $2
+            exit
+            ;;
+        *)
+            echo "ERROR: unknown parameter \"$PARAM\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+

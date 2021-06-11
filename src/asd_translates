@@ -1,2 +1,6 @@
 T__FILE_NOT_EXIST='does not exist'
 T__NO_ARGS='No arguments supplied'
+T__CURRENT_OP='This operation'
+T__NEED_ROOT='needs root access'
+T__ERROR='ERROR'
+T__WARNING='WARNING'

@@ -1,9 +1,8 @@
 #!/bin/env bash
-set -e
 
 # check if file exist
 fileExist() {
-	if [ $# -eq 0 ] then
+	if [ $# -eq 0 ]; then
 		echo $T__NO_ARGS
 		exit $ASD_CONST_EXIT_CODE_FAIL
 	fi
@@ -12,4 +11,133 @@ fileExist() {
 		echo "[$1] $T__FILE_NOT_EXIST"
 		exit $ASD_CONST_EXIT_CODE_FAIL
 	fi
+}
+
+# print message
+# @ message
+msg() {
+	printf "${GREEN}${CMD_SEPARATOR}${CRESET} %s\n" "$1"
+}
+
+# print error message
+# @ message
+msgerr() {
+	printf "${RED}${CMD_SEPARATOR} ${T__ERROR}${CMD_EMOJI_BAD}${CRESET} %s\n" "$1" >&2
+}
+
+# print warn message
+# @ message
+msgwarn() {
+	printf "${YELLOW}${CMD_SEPARATOR} ${T__WARNING}:${CRESET} %s\n" "$1" >&2
+}
+
+# check for root
+needroot() {	
+	if [ "$(id -u)" != 0 ]; then
+		if [ "$#" -eq 0 ]; then
+			needroot $T__CURRENT_OP
+		else
+			msgerr "$* $T__NEED_ROOT"
+		fi
+		exit $ASD_CONST_EXIT_CODE_FAIL
+	fi	
+}
+
+# show usage help
+usage() {
+	cat << EOF
+Usage:
+    $(basename $0) [<arg>]
+    
+Options:
+    --help | -h                           show help info
+    --config | -cfg                       show current config
+
+EOF
+}
+
+# show config data
+showcfg() {
+	echo "$(<$ASD_CFG)"
+}
+
+# check is argument not null
+# @ argument
+checkArg() {
+	if [ -z "$1" ]
+		then
+			msg "empty argument"
+      		exit $ASD_CONST_EXIT_CODE_FAIL
+	fi
+}
+
+# check file exist
+# @ target directory
+checkfileexist() {
+	if [ ! -f "$1" ];
+		then
+			echo "File $1 DOES NOT exists." 
+			exit 9999 # die with error code 9999
+	fi
+}
+
+# init app
+init() {
+	fileExist $ASD_CFG
+	needroot
+
+	mkdir -pv $DbPath
+	mkdir -pv $CachePath
+	mkdir -pv $TempPath
+	mkdir -pv $SrcPath
+}
+
+# fetch file
+# @ source
+# @ destination
+fetch() {
+	wget -q -N $1 --directory-prefix=$2
+}
+
+# search strinig in specified file
+# @ search string
+# @ source file
+srch() {
+	checkfileexist $2
+	fonundResult=$(grep -a -m 1 -h -r "$1" "$2" | head -1)
+	echo $fonundResult
+}
+
+# clean cache
+clearcache() {
+  rm -rf $CachePath/*
+  rm -rf $TempPath/*
+}
+
+# fetch ports data source
+fetchSource() {
+	msg 'Start syncing...' 
+	fetch $RepoSource $CachePath
+	tar -xf $CachePath/$RepoArchName -C $CachePath
+	msg  "Syncing complete..."
+}
+
+# search package in local ports tree
+# @ search string
+search () {
+	fonundResult=$(srch $1 $RepoIndex)
+	checkArg $fonundResult
+	msg 'found package: '$fonundResult
+}
+
+# download package
+# @ search string
+download() {
+	pkg=$(srch $1 $RepoIndex)
+	checkArg $pkg
+	msg "downloading $pkg"
+	url=$(<$CachePath/$RepoName/src/packages/$pkg/.url)
+	checkArg $url
+	fetch $url $TempPath
+	msg "download $pkg complete"
 }
