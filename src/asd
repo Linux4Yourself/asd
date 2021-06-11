@@ -28,24 +28,28 @@ while [ "$1" != "" ]; do
             exit
             ;;
 		# clear cache
- 		-cc | --clear-cache)
+ 	-cc | --clear-cache)
             clearcache
             exit
             ;;
-		-ss | --sync)
+	-ss | --sync)
             fetchSource
             exit
             ;;
-		-v | --version)
+	-v | --version)
             msg 'asd v.'$ASD_VER
             exit
             ;;
-		-s | --search)
+	-s | --search)
             search $2
             exit
             ;;
-		-d | --download)
+	-d | --download)
             download $2
+            exit
+            ;;
+	-i | --install)
+            install $2 $3
             exit
             ;;
         *)

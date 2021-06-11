@@ -90,6 +90,7 @@ init() {
 	mkdir -pv $CachePath
 	mkdir -pv $TempPath
 	mkdir -pv $SrcPath
+	mkdir -pv $LogPath
 }
 
 # fetch file
@@ -122,6 +123,14 @@ fetchSource() {
 	msg  "Syncing complete..."
 }
 
+# fetch specific script from port
+# @specified package
+# @specifid port
+fetchScript() {
+	res=$(<$CachePath/$RepoName/src/packages/$1/$2)
+	echo $res
+}
+
 # search package in local ports tree
 # @ search string
 search () {
@@ -136,8 +145,49 @@ download() {
 	pkg=$(srch $1 $RepoIndex)
 	checkArg $pkg
 	msg "downloading $pkg"
-	url=$(<$CachePath/$RepoName/src/packages/$pkg/.url)
+	#url=$(<$CachePath/$RepoName/src/packages/$pkg/.url)
+	url=$(fetchScript $pkg '.url')
+	msg $url
 	checkArg $url
-	fetch $url $TempPath
+	fetch $url $SrcPath
 	msg "download $pkg complete"
+}
+
+# Get package name from url
+# @ package name
+namefromurl() {
+	pkg=$(srch $1 $RepoIndex)
+	checkArg $pkg
+	filename=$(basename $(fetchScript $pkg '.url'))
+	echo $filename
+}
+
+# Extract package
+# @ package name
+extract() {
+	pkg=$(srch $1 $RepoIndex)
+	checkArg $pkg
+	filename=$(namefromurl $pkg)
+	msg "extracting $filename to $SrcPath"
+	tar -xf $SrcPath/$filename -C $SrcPath
+}
+
+install() {
+	pkg=$(srch $1 $RepoIndex)
+	checkArg $pkg
+	extract $pkg
+	pkgname=$(fetchScript $pkg '.name')
+
+	msg "Execute script '$2' for $pkgname ..."
+
+	currentpath=$(pwd)
+	pkgPath=$SrcPath/$pkgname
+
+	cd $pkgPath
+
+	# run the command
+	> $LogPath/$pkgname
+	configure=$($(fetchScript $pkg $2) > $LogPath/$pkgname-$2)
+
+	$configure
 }
