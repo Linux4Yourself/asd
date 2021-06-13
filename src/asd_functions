@@ -137,9 +137,19 @@ fetchScript() {
 	echo $res
 }
 
+# get script path
+# @package name
+# @script name
+scriptpath() {
+	checkArg $1
+	checkArg $2
+	res=$CachePath/$RepoName/src/packages/$1/$2
+	echo $res
+}
+
 # search package in local ports tree
 # @ search string
-search () {
+search() {
 	fonundResult=$(srch $1 $RepoIndex)
 	checkArg $fonundResult
 	msg 'found package: '$fonundResult
@@ -181,9 +191,11 @@ extract() {
 install() {
 	pkg=$(srch $1 $RepoIndex)
 	checkArg $pkg
+	download $pkg
 	extract $pkg
 	pkgname=$(fetchScript $pkg '.name')
 
+	checkArg $2
 	msg "Execute script '$2' for $pkgname ..."
 
 	currentpath=$(pwd)
@@ -192,10 +204,10 @@ install() {
 	cd $pkgPath
 
 	export DESTDIR="$SrcPath/$pkgname-build"
-	# run the command
-	> $LogPath/$pkgname
-	command=$($(fetchScript $pkg $2) > $LogPath/$pkgname-$2)
+	
+	# getcommand path
+	cmd=$(scriptpath $pkg $2)
+	# execute command by path, and write to log, with specified script name prefix
+	bash $cmd > $LogPath/$pkgname-$2
 	unset DESTDIR
-
-	$command
 }
