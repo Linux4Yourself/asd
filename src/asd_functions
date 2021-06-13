@@ -113,6 +113,12 @@ srch() {
 clearcache() {
   rm -rf $CachePath/*
   rm -rf $TempPath/*
+  rm -rf $LogPath/*
+}
+
+# clean source folder
+clearsrc() {
+ rm -rf $SrcPath/*
 }
 
 # fetch ports data source
@@ -185,9 +191,11 @@ install() {
 
 	cd $pkgPath
 
+	export DESTDIR="$SrcPath/$pkgname-build"
 	# run the command
 	> $LogPath/$pkgname
 	command=$($(fetchScript $pkg $2) > $LogPath/$pkgname-$2)
+	unset DESTDIR
 
 	$command
 }

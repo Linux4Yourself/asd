@@ -32,6 +32,10 @@ while [ "$1" != "" ]; do
             clearcache
             exit
             ;;
+      -cs | --clear-source)
+            clearsrc
+            exit
+            ;;
 	-ss | --sync)
             fetchSource
             exit
